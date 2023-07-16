@@ -9,6 +9,7 @@ This project is a form builder application built with TypeScript and React. It a
 - TypeScript
 - Webpack
 - Cypress
+- Redux
 
 ## Installation
 
