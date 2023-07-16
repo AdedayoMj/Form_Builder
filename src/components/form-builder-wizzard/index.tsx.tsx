@@ -20,28 +20,39 @@ const FormBuilderWizard: FC<FormBuilderWizardProps> = ({
   formsGen,
 }) => {
   const [formFields, setFormFields] = useState<FieldProperties[]>([]);
-  const [disableSaveButton, setSetDisableSaveButton] = useState(true);
+  const [formTitle, setFormTitle] = useState<string>(formsGen?.formTitle || '');
+  const [disableSaveButton, setDisableSaveButton] = useState(true);
 
   const dispatch = useDispatch();
   const fieldTypes = ['text', 'radio', 'checkbox', 'dropdown', 'file'];
 
-  const handleAddField = (fieldProperties: FieldProperties) => {
+  const handleFormTitleChange = (newFormTitle: string) => {
+    setFormTitle(newFormTitle);
+  };
+  const handleAddField = (
+    fieldProperties: FieldProperties,
+    formTitle: string
+  ) => {
+    setFormTitle(formTitle);
     setFormFields((prevFields) => [...prevFields, fieldProperties]);
   };
 
   const handleSaveForms = () => {
     const formId = formsGen ? formsGen.formId : uuidv4();
-    console.log(formFields);
-
-    console.log(formId);
 
     if (formsGen) {
       // Update existing form
-      dispatch(editForm({ formId: formId, forms: formFields }));
+      dispatch(
+        editForm({ formId: formId, formTitle: formTitle, forms: formFields })
+      );
     } else {
       // Add new form
-      dispatch(addFormField({ formId, formFields: formFields }));
+      dispatch(
+        addFormField({ formId, formTitle: formTitle, formFields: formFields })
+      );
     }
+    setFormFields([]);
+    setFormTitle('');
     onSave();
   };
 
@@ -51,7 +62,11 @@ const FormBuilderWizard: FC<FormBuilderWizardProps> = ({
     );
   };
 
-  const handleUpdateField = (updatedField: FieldProperties) => {
+  const handleUpdateField = (
+    updatedField: FieldProperties,
+    formTitle: string
+  ) => {
+    setFormTitle(formTitle);
     setFormFields((prevFields) =>
       prevFields.map((field) =>
         field.fieldId === updatedField.fieldId ? updatedField : field
@@ -60,13 +75,13 @@ const FormBuilderWizard: FC<FormBuilderWizardProps> = ({
   };
 
   const EnableSaveButon = (value: boolean) => {
-    setSetDisableSaveButton(value);
+    setDisableSaveButton(value);
   };
 
   useEffect(() => {
     if (formsGen?.forms) {
       setFormFields(formsGen.forms);
-      setSetDisableSaveButton(false);
+      setDisableSaveButton(false);
     }
   }, [formsGen?.forms]);
 
@@ -76,7 +91,7 @@ const FormBuilderWizard: FC<FormBuilderWizardProps> = ({
         <Modal.Title>Form Generator</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <div className="container">
+        <div className="container" data-cy="form-wizzard">
           <FormWizzard
             fieldTypes={fieldTypes}
             onAddField={handleAddField}
@@ -84,6 +99,8 @@ const FormBuilderWizard: FC<FormBuilderWizardProps> = ({
             onDelete={handleDeleteField}
             onUpdate={handleUpdateField}
             onDisableButton={EnableSaveButon}
+            onFormTitleChange={handleFormTitleChange}
+            formTitle={formTitle}
           />
         </div>
       </Modal.Body>

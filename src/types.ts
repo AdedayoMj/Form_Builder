@@ -20,6 +20,7 @@ interface FieldProperties {
 interface FormGenerator {
   forms: FieldProperties[];
   formId: string;
+  formTitle: string;
 }
 
-export type { FieldProperties, FormGenerator, OptionType };
+export type { FieldProperties, FormGenerator, OptionType, ValidationType };

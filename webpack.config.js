@@ -1,11 +1,14 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const webpack = require('webpack');
 
 module.exports = {
   entry: "./src/index.tsx",
   output: {
-    filename: "main.js",
+    filename: "[name].[contenthash].js",
     path: path.resolve(__dirname, "build"),
+    clean: true,
   },
   module: {
     rules: [
@@ -21,6 +24,9 @@ module.exports = {
       {
         test: /\.(ts|tsx)$/,
         loader: "ts-loader",
+        options: {
+          transpileOnly: true
+        }
       },
       {
         test: /\.json$/,
@@ -29,6 +35,7 @@ module.exports = {
       },
     ],
   },
+  
   resolve: {
     extensions: ["*", ".js", ".jsx", ".ts", ".tsx"],
   },
@@ -36,7 +43,23 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "public", "index.html"),
     }),
+    new webpack.DefinePlugin({
+      'process.env.CYPRESS': JSON.stringify(true),
+    }),
   ],
+  optimization: {
+    runtimeChunk: "single", // Extract runtime into a separate chunk
+    splitChunks: {
+      chunks: "all", // Split all chunks, including initial and dynamic ones
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: "vendors",
+          enforce: true, // Force creation of vendor chunk
+        },
+      },
+    },
+  },
   devtool: 'source-map',
   devServer: {
     static: {

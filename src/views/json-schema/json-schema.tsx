@@ -1,15 +1,18 @@
-import { FC } from 'react';
-import { FieldProperties } from '../../types';
+import React, { FC } from 'react';
+import { FormGenerator } from '../../types';
 
 interface JsonSchemaProps {
-  forms: FieldProperties[];
+  formGen: FormGenerator | null;
 }
 
-const JsonSchemaView: FC<JsonSchemaProps> = ({ forms }) => {
+const JsonSchemaView: FC<JsonSchemaProps> = ({ formGen }) => {
+  if (!formGen) {
+    return <div> No json preview</div>;
+  }
   return (
     <div>
       <pre>
-        <code>{JSON.stringify({ forms }, null, 2)}</code>
+        <code>{JSON.stringify({ formGen }, null, 2)}</code>
       </pre>
     </div>
   );

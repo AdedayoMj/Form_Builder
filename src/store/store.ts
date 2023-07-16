@@ -4,6 +4,7 @@ import { persistedReducer, persistStore } from './persist-config';
 const initialState = {
   forms: {
     allForms: [],
+    loading: false,
   },
 };
 

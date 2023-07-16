@@ -15,11 +15,28 @@ const FormPreview: React.FC<FormPreviewProps> = ({ forms }) => {
   };
 
   const renderField = (field: FieldProperties) => {
-    const { fieldType, options } = field;
-
+    const { fieldType, options, validations, required, multipleUploads } =
+      field;
+    const minValidation = validations?.find(
+      (validation) => validation.name === 'minLength'
+    );
+    const maxValidation = validations?.find(
+      (validation) => validation.name === 'maxLength'
+    );
+    const regexValidation = validations?.find(
+      (validation) => validation.name === 'regex'
+    );
     switch (fieldType) {
       case 'text':
-        return <FormControl type="text" />;
+        return (
+          <FormControl
+            type="text"
+            min={minValidation?.value}
+            max={maxValidation?.value}
+            pattern={regexValidation?.value}
+            required={required}
+          />
+        );
       case 'radio':
         return (
           <div>
@@ -30,6 +47,7 @@ const FormPreview: React.FC<FormPreviewProps> = ({ forms }) => {
                 name={field.fieldId}
                 value={option.name}
                 label={option.name}
+                required={required}
               />
             ))}
           </div>
@@ -44,13 +62,14 @@ const FormPreview: React.FC<FormPreviewProps> = ({ forms }) => {
                 name={field.fieldId}
                 value={option.name}
                 label={option.name}
+                required={required}
               />
             ))}
           </div>
         );
       case 'dropdown':
         return (
-          <Form.Select>
+          <Form.Select required={required}>
             {options?.map((option: OptionType) => (
               <option key={option.name} value={option.name}>
                 {option.name}
@@ -59,18 +78,26 @@ const FormPreview: React.FC<FormPreviewProps> = ({ forms }) => {
           </Form.Select>
         );
       case 'file':
-        return <FormControl type="file" />;
+        return (
+          <FormControl
+            type="file"
+            required={required}
+            multiple={multipleUploads}
+          />
+        );
       default:
         return null;
     }
   };
 
   return (
-    <div className="container mb-4">
+    <div className="container mb-4" data-cy="preview-form">
       <Form>
         {forms.map((field: FieldProperties) => (
-          <FormGroup key={field.fieldId} className="mb-3">
-            <FormLabel>{capitalizeFirstLetter(field.labelName)}</FormLabel>
+          <FormGroup key={field.fieldId} className="mb-3" data-cy="form-field">
+            <FormLabel className="fw-bold" htmlFor={field.fieldId}>
+              {capitalizeFirstLetter(field.labelName)}
+            </FormLabel>
             {renderField(field)}
           </FormGroup>
         ))}

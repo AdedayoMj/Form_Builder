@@ -9,7 +9,7 @@ import {
   Form as BootstrapForm,
   Row,
 } from 'react-bootstrap';
-import { FieldProperties } from '../../../types';
+import { FieldProperties, ValidationType } from '../../../types';
 
 interface TextFieldProps {
   onAddField: (properties: FieldProperties) => void;
@@ -64,7 +64,7 @@ const TextField: React.FC<TextFieldProps> = ({
 
   const handleValidationSelect = (
     eventKey: string,
-    values: any,
+    values: FieldProperties,
     setFieldValue: (field: string, value: any) => void
   ) => {
     setSelectedValidation(eventKey);
@@ -73,28 +73,31 @@ const TextField: React.FC<TextFieldProps> = ({
 
   const handleAddValidation = (
     eventKey: string,
-    values: any,
+    values: FieldProperties,
     setFieldValue: (field: string, value: any) => void
   ) => {
     if (eventKey !== '') {
       const newValidation = { name: eventKey, value: '' };
-      setFieldValue('validations', [...values.validations, newValidation]);
+      setFieldValue('validations', [
+        ...(values.validations ?? []),
+        newValidation,
+      ]);
       setSelectedValidation('');
     }
   };
 
   const handleRemoveValidation = (
-    values: any,
+    values: FieldProperties,
     setFieldValue: (field: string, value: any) => void,
     index: number
   ) => {
-    const updatedValidations = [...values.validations];
+    const updatedValidations = [...(values.validations ?? [])];
     updatedValidations.splice(index, 1);
     setFieldValue('validations', updatedValidations);
   };
 
   const renderValidations = (
-    values: any,
+    values: FieldProperties,
     setFieldValue: (field: string, value: any) => void
   ) => {
     const handleValidationChange = (
@@ -102,57 +105,62 @@ const TextField: React.FC<TextFieldProps> = ({
       name: string
     ) => {
       const { value } = event.target;
-      const updatedValidations = values.validations.map((validation: any) => {
-        if (validation.name === name) {
-          return { ...validation, value };
-        }
-        return validation;
-      });
+      const updatedValidations =
+        values.validations &&
+        values.validations.map((validation: ValidationType) => {
+          if (validation.name === name) {
+            return { ...validation, value };
+          }
+          return validation;
+        });
       setFieldValue('validations', updatedValidations);
     };
 
-    return values.validations.map((validation: any, index: number) => {
-      const key = `${index}_${validation.name}`;
-      return (
-        <Row key={key} className="mt-2">
-          <Col sm={3}>
-            <label className="align-items-center">{validation.name}</label>
-          </Col>
-          <Col sm={6}>
-            <Field
-              type="text"
-              name={`validations[${index}].value`}
-              className="form-control"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                handleValidationChange(event, validation.name)
-              }
-            />
-            <ErrorMessage
-              name={`validations[${index}].value`}
-              component="p"
-              className="text-danger"
-            />
-          </Col>
-          <Col sm={2}>
-            <button
-              type="button"
-              onClick={() =>
-                handleRemoveValidation(values, setFieldValue, index)
-              }
-              className="btn btn-danger"
-            >
-              Remove
-            </button>
-          </Col>
-        </Row>
-      );
-    });
+    return (
+      values.validations &&
+      values.validations.map((validation: ValidationType, index: number) => {
+        const key = `${index}_${validation.name}`;
+        return (
+          <Row key={key} className="mt-2">
+            <Col sm={3}>
+              <label className="align-items-center">{validation.name}</label>
+            </Col>
+            <Col sm={6}>
+              <Field
+                type="text"
+                name={`validations[${index}].value`}
+                className="form-control"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                  handleValidationChange(event, validation.name)
+                }
+              />
+              <ErrorMessage
+                name={`validations[${index}].value`}
+                component="p"
+                className="text-danger"
+              />
+            </Col>
+            <Col sm={2}>
+              <button
+                type="button"
+                onClick={() =>
+                  handleRemoveValidation(values, setFieldValue, index)
+                }
+                className="btn btn-danger"
+              >
+                Remove
+              </button>
+            </Col>
+          </Row>
+        );
+      })
+    );
   };
 
-  const handleSubmit = (values: any) => {
-    const fieldProperties = {
+  const handleSubmit = (values: FieldProperties) => {
+    const fieldProperties: FieldProperties = {
       ...values,
-      fieldId: fieldState === 'create' ? uuidv4() : fieldForm?.fieldId,
+      fieldId: fieldState === 'create' ? uuidv4() : fieldForm?.fieldId || '',
     };
     onAddField(fieldProperties);
   };

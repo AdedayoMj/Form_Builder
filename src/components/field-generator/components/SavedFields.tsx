@@ -1,3 +1,4 @@
+import React from 'react';
 import { Button, Col, Row } from 'react-bootstrap';
 import { FieldProperties } from '../../../types';
 import { useState } from 'react';
@@ -5,13 +6,13 @@ import TextField from './TextField';
 import FieldWithOptions from './FieldWithOptions';
 import UploadField from './UploadField';
 
-interface TextFieldProps {
+interface SavedFieldProps {
   fieldProperties: FieldProperties;
   onDeleteField: (fieldId: string) => void;
   onUpdateField: (properties: FieldProperties) => void;
 }
 
-const SavedFields: React.FC<TextFieldProps> = ({
+const SavedFields: React.FC<SavedFieldProps> = ({
   fieldProperties,
   onDeleteField,
   onUpdateField,

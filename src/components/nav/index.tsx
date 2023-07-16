@@ -1,3 +1,5 @@
+import React from 'react';
+
 export default function Nav() {
   return (
     <nav className="navbar navbar-primary bg-primary text-light">
